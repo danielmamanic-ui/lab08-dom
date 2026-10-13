@@ -28,7 +28,18 @@
   <p class="sub">Escala vigesimal (0 a 20). Nota minima aprobatoria: 11.</p>
 
   <section>
+    <h2>Agregar estudiante</h2>
+    <form id="formEstudiante">
+      <input id="nombre" type="text" placeholder="Nombre del estudiante">
+      <input id="nota" type="number" step="0.5" placeholder="Nota (0 a 20)">
+      <button type="submit">Agregar</button>
+    </form>
+    <p id="mensaje"></p>
+  </section>
+
+  <section>
     <h2>Estudiantes</h2>
+    <input id="buscar" type="text" placeholder="Buscar por nombre...">
     <ul id="lista"></ul>
   </section>
 

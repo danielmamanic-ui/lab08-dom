@@ -49,3 +49,86 @@ promedio.textContent = (suma / estudiantes.length).toFixed(2);
 aprobados.textContent = contAprobados;
 cantidad.textContent = estudiantes.length;
 ```
+
+## Version 2: con eventos
+
+**Que agregue:** un formulario (nombre y nota), un campo de busqueda y un boton **Borrar** en cada estudiante. Use tres tipos de eventos: `submit` para agregar, `input` para filtrar mientras se escribe y `click` en cada boton Borrar. Agregue tambien la validacion: el nombre no puede estar vacio y la nota debe ser un numero entre 0 y 20; el error se muestra en rojo dentro de la pagina (parrafo `#mensaje`), no con `alert`. Todo el dibujo paso a una funcion `dibujar()` que se vuelve a ejecutar despues de cada cambio.
+
+**Por que:** la version 1 no reaccionaba al usuario. Con los eventos la lista se vuelve una herramienta real; y con `preventDefault()` el formulario no recarga la pagina (lo aprendido en el Ejercicio 4).
+
+**Que cambio en la pagina:** ahora se pueden agregar estudiantes, buscarlos y borrarlos; el promedio y los aprobados se recalculan solos. Si la nota es 25, -1 o esta vacia aparece "La nota debe ser un numero entre 0 y 20." en rojo y no se agrega nada. Los datos siguen siendo objetos sueltos `{ nombre, nota }` y los calculos estan repetidos dentro de `dibujar()`.
+
+```js
+function dibujar() {
+  lista.innerHTML = "";
+  const texto = buscar.value.trim().toLowerCase();
+
+  estudiantes
+    .filter((e) => e.nombre.toLowerCase().includes(texto))
+    .forEach((e) => {
+      const li = document.createElement("li");
+      const aprobado = e.nota >= NOTA_MINIMA;
+      li.classList.add(aprobado ? "aprobado" : "desaprobado");
+
+      const info = document.createElement("span");
+      info.textContent = e.nombre + " - " + e.nota;
+      const estado = document.createElement("span");
+      estado.classList.add("estado");
+      estado.textContent = aprobado ? "aprobado" : "desaprobado";
+      info.appendChild(estado);
+
+      const btnBorrar = document.createElement("button");
+      btnBorrar.textContent = "Borrar";
+      btnBorrar.classList.add("borrar");
+      btnBorrar.addEventListener("click", () => {
+        estudiantes = estudiantes.filter((x) => x !== e);
+        mensaje.textContent = "Se elimino a " + e.nombre;
+        mensaje.className = "ok";
+        dibujar();
+      });
+
+      li.appendChild(info);
+      li.appendChild(btnBorrar);
+      lista.appendChild(li);
+    });
+
+  let suma = 0;
+  let contAprobados = 0;
+  estudiantes.forEach((e) => {
+    suma = suma + e.nota;
+    if (e.nota >= NOTA_MINIMA) {
+      contAprobados = contAprobados + 1;
+    }
+  });
+  promedio.textContent = estudiantes.length > 0 ? (suma / estudiantes.length).toFixed(2) : "0.00";
+  aprobados.textContent = contAprobados;
+  cantidad.textContent = estudiantes.length;
+}
+
+formEstudiante.addEventListener("submit", (evento) => {
+  evento.preventDefault();
+  const valorNombre = nombre.value.trim();
+  const valorNota = Number(nota.value);
+
+  if (valorNombre === "") {
+    mensaje.textContent = "Escribe el nombre del estudiante.";
+    mensaje.className = "error";
+    return;
+  }
+  if (nota.value === "" || isNaN(valorNota) || valorNota < 0 || valorNota > 20) {
+    mensaje.textContent = "La nota debe ser un numero entre 0 y 20.";
+    mensaje.className = "error";
+    return;
+  }
+
+  estudiantes.push({ nombre: valorNombre, nota: valorNota });
+  mensaje.textContent = "Se agrego a " + valorNombre;
+  mensaje.className = "ok";
+  formEstudiante.reset();
+  dibujar();
+});
+
+buscar.addEventListener("input", dibujar);
+
+dibujar();
+```
